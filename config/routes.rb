@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   # You can have the root of your site routed with "root"
 
   root 'welcome#index'
+  post 'welcome/print_payload', to: 'welcome#print_payload'
 
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 end

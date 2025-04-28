@@ -5,7 +5,7 @@ threads threads_count, threads_count
 preload_app!
 
 # Support IPv6 by binding to host `::` instead of `0.0.0.0`
-port(ENV.fetch("PORT") { 3000 }, "::")
+port(ENV.fetch("PORT") { 3001 }, "::")
 environment ENV.fetch("RAILS_ENV") { "development" }
 
 # Allow puma to be restarted by `rails restart` command.

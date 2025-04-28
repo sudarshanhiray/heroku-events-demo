@@ -39,3 +39,6 @@ gem 'puma'
 # Use debugger
 # gem 'debugger', group: [:development, :test]
 
+# Use rack-cors for handling CORS
+gem 'rack-cors'
+
