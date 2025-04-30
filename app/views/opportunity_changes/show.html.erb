@@ -1,12 +1,146 @@
 <h1>Latest Opportunity Change Event</h1>
-<pre id="payload"><%= @payload %></pre>
+<div id="oppty-container"></div>
+
 <script>
-  function fetchLatest() {
-    fetch('/opportunity_change.json')
-      .then(response => response.json())
-      .then(data => {
-        document.getElementById('payload').innerText = data.payload;
-      });
+function highlightChangedFields(row, changedFields) {
+  changedFields.forEach(function(field) {
+    var cell = row.querySelector('[data-field="' + field + '"]');
+    if (cell) {
+      cell.classList.add('highlight');
+      setTimeout(function() { cell.classList.remove('highlight'); }, 2000);
+    }
+  });
+}
+
+function renderOpportunity(data) {
+  let container = document.getElementById('oppty-container');
+  if (!data || !data.data) {
+    container.innerHTML = "<p>No Opportunity change event received yet.</p>";
+    return;
   }
-  setInterval(fetchLatest, 5000); // Poll every 5 seconds
+
+  // Extract fields to display
+  const oppty = data.data;
+  const header = oppty.ChangeEventHeader || {};
+  const changedFields = (header.changedFields || []).map(String);
+
+  // 15 important Opportunity fields
+  const fieldMap = {
+    "Name": "Name",
+    "StageName": "Stage",
+    "Amount": "Amount",
+    "Probability": "Probability",
+    "CloseDate": "Close Date",
+    "OwnerId": "Owner",
+    "Type": "Type",
+    "LeadSource": "Lead Source",
+    "AccountId": "Account",
+    "ExpectedRevenue": "Expected Revenue",
+    "IsClosed": "Is Closed",
+    "IsWon": "Is Won",
+    "Description": "Description",
+    "LastModifiedDate": "Last Modified",
+    "CreatedDate": "Created Date"
+  };
+
+  let rows = '';
+  Object.entries(fieldMap).forEach(([api, label]) => {
+    let value = oppty[api];
+    if (value && typeof value === 'object' && value.string) value = value.string;
+    if (value && typeof value === 'object' && value.long) value = new Date(value.long).toLocaleString();
+    if (value === null || value === undefined) value = '';
+    rows += `<tr>
+      <td>${label}</td>
+      <td data-field="${api}" class="">${value}</td>
+    </tr>`;
+  });
+
+  // Show changed fields
+  let changedFieldsDisplay = changedFields.length
+    ? `<div class="changed-fields">Changed: ${changedFields.join(', ')}</div>`
+    : '';
+
+  container.innerHTML = `
+    ${changedFieldsDisplay}
+    <table class="oppty-table">
+      <tbody>
+        ${rows}
+      </tbody>
+    </table>
+    <div class="meta">
+      <b>Change Type:</b> ${header.changeType || ''} <br>
+      <b>Record Id:</b> ${(header.recordIds || []).join(', ')}
+    </div>
+  `;
+
+  // Animate changed fields
+  highlightChangedFields(container, changedFields);
+}
+
+function fetchLatest() {
+  fetch('/opportunity_change.json')
+    .then(response => response.json())
+    .then(json => {
+      let payload = json.payload;
+      let data;
+      try {
+        data = JSON.parse(payload);
+      } catch (e) {
+        document.getElementById('oppty-container').innerHTML = "<p>Invalid JSON data.</p>";
+        return;
+      }
+      renderOpportunity(data);
+    });
+}
+
+setInterval(fetchLatest, 5000); // Poll every 5 seconds
+fetchLatest();
 </script>
+
+<style>
+.oppty-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  margin-top: 1em;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #e3f0ff 0%, #f9f9f9 100%);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.oppty-table td {
+  border: none;
+  border-bottom: 1px solid #cce0ff;
+  padding: 12px 16px;
+  font-size: 1.05em;
+}
+.oppty-table tr:last-child td {
+  border-bottom: none;
+}
+.oppty-table tr:nth-child(even) {
+  background: #f0f7ff;
+}
+.oppty-table tr:nth-child(odd) {
+  background: #eaf3fb;
+}
+.oppty-table td:first-child {
+  font-weight: bold;
+  color: #2a5298;
+  width: 200px;
+}
+.highlight {
+  background: #ffe066 !important;
+  transition: background 0.5s;
+}
+.changed-fields {
+  margin-bottom: 0.5em;
+  color: #0070d2;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+.meta {
+  margin-top: 1em;
+  font-size: 0.95em;
+  color: #666;
+}
+</style>
