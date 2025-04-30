@@ -93,6 +93,8 @@ GEM
     date (3.4.1)
     drb (2.2.1)
     erubi (1.13.1)
+    excon (1.2.5)
+      logger
     execjs (2.10.0)
     ffi (1.16.3)
     globalid (1.2.1)
@@ -113,6 +115,7 @@ GEM
     listen (3.9.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
+    logger (1.7.0)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -239,6 +242,7 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   coffee-rails
+  excon
   jbuilder
   jquery-rails
   listen
