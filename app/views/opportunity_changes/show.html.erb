@@ -46,8 +46,22 @@ function renderOpportunity(data) {
   let rows = '';
   Object.entries(fieldMap).forEach(([api, label]) => {
     let value = oppty[api];
-    if (value && typeof value === 'object' && value.string) value = value.string;
-    if (value && typeof value === 'object' && value.long) value = new Date(value.long).toLocaleString();
+    // Handle different types of object values
+    if (value && typeof value === 'object') {
+      if (value.string) {
+        value = value.string;
+      } else if (value.long) {
+        value = new Date(value.long).toLocaleString();
+      } else if (value.double) {
+        value = value.double;
+      } else if (value.int) {
+        value = value.int;
+      } else if (value.boolean !== undefined) {
+        value = value.boolean.toString();
+      } else {
+        value = JSON.stringify(value);
+      }
+    }
     if (value === null || value === undefined) value = '';
     rows += `<tr>
       <td>${label}</td>
