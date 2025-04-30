@@ -1,0 +1,12 @@
+<h1>Latest Opportunity Change Event</h1>
+<pre id="payload"><%= @payload %></pre>
+<script>
+  function fetchLatest() {
+    fetch('/opportunity_change.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('payload').innerText = data.payload;
+      });
+  }
+  setInterval(fetchLatest, 5000); // Poll every 5 seconds
+</script>
